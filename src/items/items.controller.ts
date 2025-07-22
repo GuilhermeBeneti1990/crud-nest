@@ -15,7 +15,7 @@ import { CreateItemDTO } from './dtos/create-item';
 import { UpdateItemDTO } from './dtos/update-item';
 import { PaginationDTO } from 'src/common/dtos/pagination';
 import { LoggerInterceptor } from 'src/common/interceptors/logger';
-import { BodyCreateItemInterceptor } from 'src/common/interceptors/body-create-item';
+import { BodyLogger } from 'src/common/interceptors/body-logger';
 
 @Controller('items')
 @UseInterceptors(LoggerInterceptor)
@@ -33,13 +33,13 @@ export class ItemsController {
   }
 
   @Post()
-  @UseInterceptors(BodyCreateItemInterceptor)
+  @UseInterceptors(BodyLogger)
   create(@Body() body: CreateItemDTO) {
     return this.itemService.create(body);
   }
 
   @Patch(':id')
-  @UseInterceptors(BodyCreateItemInterceptor)
+  @UseInterceptors(BodyLogger)
   update(@Param('id', ParseIntPipe) id: number, @Body() body: UpdateItemDTO) {
     return this.itemService.update(id, body);
   }

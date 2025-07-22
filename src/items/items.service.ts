@@ -40,6 +40,7 @@ export class ItemsService {
         data: {
           name: createItemDTO.name,
           description: createItemDTO.description,
+          userId: createItemDTO.userId,
         },
       });
 
@@ -69,7 +70,14 @@ export class ItemsService {
         where: {
           id: itemAlreadyExists.id,
         },
-        data: updateItemDTO,
+        data: {
+          name: updateItemDTO.name
+            ? updateItemDTO.name
+            : itemAlreadyExists.name,
+          description: updateItemDTO.description
+            ? updateItemDTO.description
+            : itemAlreadyExists.description,
+        },
       });
 
       return item;
