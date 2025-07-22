@@ -6,11 +6,8 @@ export class AuthAdminGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const request = context.switchToHttp().getRequest();
-
-    console.log(`[AUTH] ${request['user']}`);
-
-    if (request['user']?.role === 'admin') return true;
 
     return true;
   }

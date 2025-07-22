@@ -8,14 +8,15 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ItemsModule } from 'src/items/items.module';
 import { UsersModule } from 'src/users/users.module';
-import { LoggerMiddleware } from 'src/common/middlewares/logger';
+import { AuthMiddleware } from 'src/common/middlewares/auth';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ApiExceptionFilter } from 'src/common/filters/exception';
 import { AuthAdminGuard } from 'src/common/guards/admin';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), ItemsModule, UsersModule],
+  imports: [ConfigModule.forRoot(), ItemsModule, UsersModule, AuthModule],
   controllers: [AppController],
   providers: [
     AppService,
@@ -31,7 +32,7 @@ import { ConfigModule } from '@nestjs/config';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes({
+    consumer.apply(AuthMiddleware).forRoutes({
       path: '*',
       method: RequestMethod.ALL,
     });

@@ -2,10 +2,14 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDTO } from './dtos/create-user';
 import { UpdateUserDTO } from './dtos/update-user';
+import { HashingServiceProtocol } from 'src/auth/hash/hashing.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly hashingService: HashingServiceProtocol,
+  ) {}
 
   async findOne(id: number) {
     const user = await this.prisma.users.findFirst({
@@ -27,11 +31,14 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDTO) {
     try {
+      const passwordHash = await this.hashingService.hash(
+        createUserDto.password,
+      );
       const user = await this.prisma.users.create({
         data: {
           name: createUserDto.name,
           email: createUserDto.email,
-          passwordHash: createUserDto.password,
+          passwordHash,
         },
         select: {
           id: true,
@@ -62,14 +69,25 @@ export class UsersService {
         throw new HttpException('User not found!', HttpStatus.NOT_FOUND);
       }
 
+      const dataUser: { name?: string; passwordHash?: string } = {
+        name: updateUserDto.name ? updateUserDto.name : user.name,
+      };
+
+      if (updateUserDto?.password) {
+        const passwordHash = await this.hashingService.hash(
+          updateUserDto?.password,
+        );
+        dataUser['passwordHash'] = passwordHash;
+      }
+
       const updateUser = await this.prisma.users.update({
         where: {
           id: user.id,
         },
         data: {
-          name: updateUserDto.name ? updateUserDto.name : user.name,
-          passwordHash: updateUserDto.password
-            ? updateUserDto.password
+          name: dataUser.name,
+          passwordHash: dataUser?.passwordHash
+            ? dataUser?.passwordHash
             : user.passwordHash,
         },
         select: {
