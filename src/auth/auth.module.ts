@@ -4,10 +4,17 @@ import { BcryptService } from './hash/bcrypt.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
+import { ConfigModule } from '@nestjs/config';
+import jwt from './config/jwt';
+import { JwtModule } from '@nestjs/jwt';
 
 @Global()
 @Module({
-  imports: [PrismaModule],
+  imports: [
+    PrismaModule,
+    ConfigModule.forFeature(jwt),
+    JwtModule.registerAsync(jwt.asProvider()),
+  ],
   providers: [
     {
       provide: HashingServiceProtocol,
