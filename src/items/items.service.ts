@@ -34,13 +34,13 @@ export class ItemsService {
     throw new HttpException('Item not found', HttpStatus.NOT_FOUND);
   }
 
-  async create(createItemDTO: CreateItemDTO) {
+  async create(createItemDTO: CreateItemDTO, payloadToken: any) {
     try {
       const newItem = await this.prisma.items.create({
         data: {
           name: createItemDTO.name,
           description: createItemDTO.description,
-          userId: createItemDTO.userId,
+          userId: payloadToken.sub,
         },
       });
 
