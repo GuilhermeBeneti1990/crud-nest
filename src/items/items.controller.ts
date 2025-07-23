@@ -26,7 +26,6 @@ import { Request } from 'express';
 export class ItemsController {
   constructor(private readonly itemService: ItemsService) {}
 
-  @UseGuards(AuthTokenGuard)
   @Get()
   findAll(@Query() paginationDto: PaginationDTO) {
     return this.itemService.findAll(paginationDto);

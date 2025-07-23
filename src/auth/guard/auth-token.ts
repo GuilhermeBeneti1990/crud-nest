@@ -9,11 +9,13 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import jwt from '../config/jwt';
 import { ConfigType } from '@nestjs/config';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AuthTokenGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
     @Inject(jwt.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwt>,
   ) {}
@@ -33,6 +35,16 @@ export class AuthTokenGuard implements CanActivate {
       );
 
       request['user'] = payload;
+
+      const user = await this.prisma.users.findFirst({
+        where: {
+          id: payload?.sub,
+        },
+      });
+
+      if (!user?.active) {
+        throw new UnauthorizedException('Unauthorized access');
+      }
     } catch (error) {
       console.log(error);
       throw new UnauthorizedException('Unauthorized access');
