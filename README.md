@@ -26,5 +26,5 @@ $ npm run test
 
 ```bash
 # documentacao
-$ npm run start:dev
+$ http://localhost:3000/docs
 ```
