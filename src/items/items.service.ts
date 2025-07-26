@@ -4,12 +4,13 @@ import { CreateItemDTO } from './dtos/create-item';
 import { UpdateItemDTO } from './dtos/update-item';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PaginationDTO } from 'src/common/dtos/pagination';
+import { ResponseItemDTO } from './dtos/response-item';
 
 @Injectable()
 export class ItemsService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(paginationDto?: PaginationDTO) {
+  async findAll(paginationDto?: PaginationDTO): Promise<ResponseItemDTO[]> {
     const limit = paginationDto?.limit ?? 10;
     const offset = paginationDto?.offset ?? 0;
     const items = await this.prisma.items.findMany({
@@ -22,7 +23,7 @@ export class ItemsService {
     return items;
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<ResponseItemDTO> {
     const item = await this.prisma.items.findFirstOrThrow({
       where: {
         id,
@@ -34,7 +35,7 @@ export class ItemsService {
     throw new HttpException('Item not found', HttpStatus.NOT_FOUND);
   }
 
-  async create(createItemDTO: CreateItemDTO, payloadToken: any) {
+  async create(createItemDTO: CreateItemDTO, payloadToken: any): Promise<ResponseItemDTO> {
     try {
       const newItem = await this.prisma.items.create({
         data: {
@@ -54,7 +55,7 @@ export class ItemsService {
     }
   }
 
-  async update(id: number, updateItemDTO: UpdateItemDTO) {
+  async update(id: number, updateItemDTO: UpdateItemDTO): Promise<ResponseItemDTO> {
     try {
       const itemAlreadyExists = await this.prisma.items.findFirst({
         where: {
