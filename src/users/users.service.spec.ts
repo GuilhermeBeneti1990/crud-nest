@@ -243,10 +243,10 @@ describe('User Service', () => {
                 where: {
                     id: userMock.id
                 }
-            })
+            });
             expect(result).toEqual({
                 message: 'User deleted',
-            })
+            });
         })
 
         it("should throw error when user is not found", async () => {

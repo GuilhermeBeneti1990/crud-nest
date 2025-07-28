@@ -4,6 +4,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { CreateItemDTO } from "./dtos/create-item";
 import { HttpException, HttpStatus } from "@nestjs/common";
 import { PaginationDTO } from "src/common/dtos/pagination";
+import { UpdateItemDTO } from "./dtos/update-item";
 
 describe("Item Service", () => {
     let itemsService: ItemsService;
@@ -24,6 +25,7 @@ describe("Item Service", () => {
                                 userId: 1
                             }),
                             findMany: jest.fn(),
+                            findFirst: jest.fn(),
                             findFirstOrThrow: jest.fn(),
                             update: jest.fn(),
                             delete: jest.fn()
@@ -156,6 +158,90 @@ describe("Item Service", () => {
                     id: 1,
                 }
             })
+        })
+    })
+
+    describe('[UPDATE]', () => {
+        it('should update item', async () => {
+            const updateItemDto: UpdateItemDTO = {
+                name: 'Novo nome do item',
+                description: 'Nova descrição do item'
+            };
+
+            const itemMock = {
+                id: 1,
+                name: 'Item 01',
+                description: 'Descrição do item 01',
+                createdAt: new Date(),
+                userId: 1
+            };
+
+            const updateItemMock = {
+                id: 1,
+                name: 'Novo nome do item',
+                description: 'Nova descrição do item',
+                createdAt: new Date(),
+                userId: 1
+            };
+
+            jest.spyOn(prismaService.items, 'findFirst').mockResolvedValue(itemMock);
+            jest.spyOn(prismaService.items, 'update').mockResolvedValue(updateItemMock);
+
+            const result = await itemsService.update(1, updateItemDto);
+
+            expect(result).toEqual(updateItemMock);
+        })
+
+        it('should throw exception if update is failed', async () => {
+            const updateItemDto: UpdateItemDTO = {
+                name: 'Novo nome do item',
+                description: 'Nova descrição do item'
+            };
+
+            jest.spyOn(prismaService.items, 'findFirst').mockResolvedValue(null);
+
+             await expect(itemsService.update(1, updateItemDto)).rejects.toThrow(
+                new HttpException(
+                    'Update operation failed',
+                    HttpStatus.BAD_REQUEST,
+                )
+            );
+        })
+    })
+
+    describe('[DELETE]', () => {
+        it('should delete item', async () => {
+            const itemMock = {
+                id: 1,
+                name: 'Item 01',
+                description: 'Descrição do item 01',
+                createdAt: new Date(),
+                userId: 1
+            };
+
+            jest.spyOn(prismaService.items, 'findFirst').mockResolvedValue(itemMock);
+
+            const result = await itemsService.delete(1);
+
+             expect(prismaService.items.delete).toHaveBeenCalledWith({
+                where: {
+                    id: itemMock.id
+                }
+            });
+
+            expect(result).toEqual({
+                message: 'Item deleted',
+            })
+        })
+
+        it('should throw exception if delete is failed', async () => {
+            jest.spyOn(prismaService.items, 'findFirst').mockResolvedValue(null);
+            await expect(itemsService.delete(1)).rejects.toThrow(
+                new HttpException(
+                    'Delete operation failed',
+                    HttpStatus.BAD_REQUEST,
+                )
+            );
         })
     })
 })
